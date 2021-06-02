@@ -1,0 +1,20 @@
+[
+  {
+    "title": "la primera",
+    "start": 2,
+    "end": 4,
+    "steps": [
+      { "title": "crusaito", "start": 2, "end": 3 },
+      { "title": "brikindans", "start": 3, "end": 4 }
+    ]
+  },
+  {
+    "title": "la segunda",
+    "start": 4,
+    "end": 6,
+    "steps": [
+      { "title": "robocó", "start": 4, "end": 5 },
+      { "title": "maikeljason", "start": 5, "end": 6 }
+    ]
+  }
+]
