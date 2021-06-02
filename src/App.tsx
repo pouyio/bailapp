@@ -63,10 +63,11 @@ function App() {
   }, [videoRef]);
 
   return (
-    <div>
+    <div className="relative">
       <video
         controls={false}
         ref={videoRef}
+        playsInline
         onClick={() => {
           playing ? videoRef.current?.pause() : videoRef.current?.play();
         }}
@@ -77,6 +78,7 @@ function App() {
         />
         Your browser does not support the video tag.
       </video>
+      <div className="absolute top-0 m-2">{playing ? "" : "⏸"}</div>
       <section className="flex">
         {info.map((i) => {
           return (
@@ -91,6 +93,7 @@ function App() {
             >
               {i.title}
               <progress
+                className="w-full"
                 value={
                   ((currentTime ?? 0) - i.steps[0].start) /
                   (i.steps[i.steps.length - 1].end - i.steps[0].start)
@@ -100,12 +103,12 @@ function App() {
           );
         })}
       </section>
-      <section className="flex">
+      <section className="flex overflow-auto">
         {videoRef.current &&
           getSteps(info, currentTime).map((step) => {
             return (
               <button
-                className="flex flex-col border-2 m-2 rounded-full p-2"
+                className="flex flex-col border-2 m-2 rounded-full p-2 whitespace-nowrap"
                 key={step.title}
                 onClick={() => {
                   videoRef.current!.currentTime = step.start;
@@ -115,6 +118,7 @@ function App() {
               >
                 {step.title}
                 <progress
+                  className="w-full"
                   value={
                     ((currentTime ?? 0) - step.start) / (step.end - step.start)
                   }
