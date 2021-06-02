@@ -3,31 +3,35 @@ import { useEffect, useRef, useState } from "react";
 const info: IData[] = [
   {
     title: "la primera",
-    start: 2,
-    end: 4,
     steps: [
       { title: "crusaito", start: 2, end: 3 },
       { title: "brikindans", start: 3, end: 4 },
+      { title: "robocó", start: 4, end: 5 },
+      { title: "maikeljason", start: 5, end: 6 },
+      { title: "chiki chiki", start: 6, end: 7 },
     ],
   },
   {
     title: "la segunda",
-    start: 4,
-    end: 6,
     steps: [
-      { title: "robocó", start: 4, end: 5 },
-      { title: "maikeljason", start: 5, end: 6 },
+      { title: "pikachu", start: 7, end: 8 },
+      { title: "vulvasaur", start: 8, end: 9 },
+      { title: "squirtle", start: 9, end: 10 },
+      { title: "charmander", start: 10, end: 12 },
     ],
   },
 ];
 
 const getSteps = (info: IData[], second: number = 0) => {
-  return info.find((i) => i.start < second && i.end >= second)?.steps || [];
+  return (
+    info.find(
+      (i) =>
+        i.steps[0].start <= second && i.steps[i.steps.length - 1].end > second
+    )?.steps || []
+  );
 };
 interface IData {
   title: string;
-  start: number;
-  end: number;
   steps: Array<{ title: string; start: number; end: number }>;
 }
 
@@ -48,6 +52,7 @@ function App() {
       clock && clearInterval(clock);
     }
     return () => clock && clearInterval(clock);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing]);
 
   useEffect(() => {
@@ -58,61 +63,66 @@ function App() {
   }, [videoRef]);
 
   return (
-    <div className="App">
-      <video controls={false} ref={videoRef}>
+    <div>
+      <video
+        controls={false}
+        ref={videoRef}
+        onClick={() => {
+          playing ? videoRef.current?.pause() : videoRef.current?.play();
+        }}
+      >
         <source
           src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
           type="video/mp4"
         />
         Your browser does not support the video tag.
       </video>
-      <section>
-        <h1>las secciones principales</h1>
+      <section className="flex">
         {info.map((i) => {
           return (
-            <div style={{ display: "flex" }}>
-              <button
-                key={i.title}
-                onClick={() => {
-                  videoRef.current!.currentTime = i.start;
-                  videoRef.current!.play();
-                }}
-              >
-                {i.title}
-              </button>
+            <button
+              className="flex flex-col border-2 m-2 rounded-full p-2"
+              key={i.title}
+              onClick={() => {
+                videoRef.current!.currentTime = i.steps[0].start;
+                setCurrentTime(i.steps[0].start);
+                // videoRef.current!.play();
+              }}
+            >
+              {i.title}
               <progress
-                value={((currentTime ?? 0) - i.start) / (i.end - i.start)}
+                value={
+                  ((currentTime ?? 0) - i.steps[0].start) /
+                  (i.steps[i.steps.length - 1].end - i.steps[0].start)
+                }
               />
-            </div>
+            </button>
           );
         })}
       </section>
-      <section>
-        <h2>las secciones secundarias</h2>
+      <section className="flex">
         {videoRef.current &&
           getSteps(info, currentTime).map((step) => {
             return (
-              <div>
-                <button
-                  key={step.title}
-                  onClick={() => {
-                    videoRef.current!.currentTime = step.start;
-                    videoRef.current!.play();
-                  }}
-                >
-                  {step.title}
-                </button>
+              <button
+                className="flex flex-col border-2 m-2 rounded-full p-2"
+                key={step.title}
+                onClick={() => {
+                  videoRef.current!.currentTime = step.start;
+                  setCurrentTime(step.start);
+                  // videoRef.current!.play();
+                }}
+              >
+                {step.title}
                 <progress
                   value={
                     ((currentTime ?? 0) - step.start) / (step.end - step.start)
                   }
                 />
-              </div>
+              </button>
             );
           })}
       </section>
-      <button onClick={() => videoRef.current?.play()}>Play</button>
-      <button onClick={() => videoRef.current?.pause()}>Pause</button>
     </div>
   );
 }
