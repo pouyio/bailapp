@@ -1,134 +1,23 @@
-import { useEffect, useRef, useState } from "react";
-import { ButtonProgress } from "./components/ButtonProgress";
-
-const info: IData[] = [
-  {
-    title: "la primera",
-    steps: [
-      { title: "crusaito", start: 2, end: 3 },
-      { title: "brikindans", start: 3, end: 4 },
-      { title: "robocó", start: 4, end: 5 },
-      { title: "maikeljason", start: 5, end: 6 },
-      { title: "chiki chiki", start: 6, end: 7 },
-    ],
-  },
-  {
-    title: "la segunda",
-    steps: [
-      { title: "pikachu", start: 7, end: 8 },
-      { title: "vulvasaur", start: 8, end: 9 },
-      { title: "squirtle", start: 9, end: 10 },
-      { title: "charmander", start: 10, end: 12 },
-    ],
-  },
-];
-
-const getSteps = (info: IData[], second: number = 0) => {
-  return (
-    info.find(
-      (i) =>
-        i.steps[0].start <= second && i.steps[i.steps.length - 1].end > second
-    )?.steps || []
-  );
-};
-interface IData {
-  title: string;
-  steps: Array<{ title: string; start: number; end: number }>;
-}
-
-const getGlobalProgress = (steps: IData["steps"], currentTime = 0) => {
-  const progress =
-    (currentTime - steps[0].start) /
-    (steps[steps.length - 1].end - steps[0].start);
-  return progress > 1 ? 1 : progress;
-};
-
-const getLocalProgress = (
-  start: number,
-  end: number,
-  currentTime: number = 0
-) => {
-  const progress = (currentTime - start) / (end - start);
-  return progress > 1 ? 1 : progress;
-};
+import { Route, Switch, BrowserRouter, Link } from "react-router-dom";
+import { Main } from "./pages/Main";
+import { Editor } from "./pages/Editor";
 
 function App() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [clock, setClock] = useState<NodeJS.Timeout>();
-  const [playing, setPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState<number>();
-
-  useEffect(() => {
-    if (playing) {
-      setClock(
-        setInterval(() => {
-          setCurrentTime(videoRef.current?.currentTime);
-        }, 100)
-      );
-    } else {
-      clock && clearInterval(clock);
-    }
-    return () => clock && clearInterval(clock);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playing]);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.addEventListener("play", () => setPlaying(true));
-      videoRef.current.addEventListener("pause", () => setPlaying(false));
-    }
-  }, [videoRef]);
-
-  const onClickButton = (time: number) => {
-    videoRef.current!.currentTime = time;
-    setCurrentTime(time);
-    // videoRef.current!.play();
-  };
-
   return (
-    <div className="relative">
-      <video
-        controls={false}
-        ref={videoRef}
-        playsInline
-        onClick={() => {
-          playing ? videoRef.current?.pause() : videoRef.current?.play();
-        }}
-      >
-        <source
-          src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-          type="video/mp4"
-        />
-        Your browser does not support the video tag.
-      </video>
-      <div className="absolute top-0 m-2">{playing ? "" : "⏸"}</div>
-      <section className="flex flex-wrap">
-        {info.map((i) => {
-          return (
-            <ButtonProgress
-              key={i.title}
-              title={i.title}
-              progress={getGlobalProgress(i.steps, currentTime)}
-              onClick={() => onClickButton(i.steps[0].start)}
-            />
-          );
-        })}
-      </section>
-      <div className="border-b"></div>
-      <section className="flex flex-wrap">
-        {videoRef.current &&
-          getSteps(info, currentTime).map((step) => {
-            return (
-              <ButtonProgress
-                key={step.title}
-                title={step.title}
-                progress={getLocalProgress(step.start, step.end, currentTime)}
-                onClick={() => onClickButton(step.start)}
-              />
-            );
-          })}
-      </section>
-    </div>
+    <BrowserRouter>
+      <Switch>
+        <Route path="/editor">
+          <Editor />
+        </Route>
+        <Route path="/*">
+          <Main />
+        </Route>
+      </Switch>
+      <div className="flex justify-around underline pt-28">
+        <Link to="/">Home</Link>
+        <Link to="/editor">Editor</Link>
+      </div>
+    </BrowserRouter>
   );
 }
 
