@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ButtonProgress } from "./components/ButtonProgress";
 
 const info: IData[] = [
   {
@@ -36,10 +37,10 @@ interface IData {
 }
 
 const getGlobalProgress = (steps: IData["steps"], currentTime = 0) => {
-  return (
-    ((currentTime ?? 0) - steps[0].start) /
-    (steps[steps.length - 1].end - steps[0].start)
-  );
+  const progress =
+    (currentTime - steps[0].start) /
+    (steps[steps.length - 1].end - steps[0].start);
+  return progress > 1 ? 1 : progress;
 };
 
 const getLocalProgress = (
@@ -47,7 +48,8 @@ const getLocalProgress = (
   end: number,
   currentTime: number = 0
 ) => {
-  return ((currentTime ?? 0) - start) / (end - start);
+  const progress = (currentTime - start) / (end - start);
+  return progress > 1 ? 1 : progress;
 };
 
 function App() {
@@ -77,6 +79,12 @@ function App() {
     }
   }, [videoRef]);
 
+  const onClickButton = (time: number) => {
+    videoRef.current!.currentTime = time;
+    setCurrentTime(time);
+    // videoRef.current!.play();
+  };
+
   return (
     <div className="relative">
       <video
@@ -97,23 +105,12 @@ function App() {
       <section className="flex flex-wrap">
         {info.map((i) => {
           return (
-            <button
-              className={`flex flex-col border-2 m-2 rounded-full p-2 ${
-                getGlobalProgress(i.steps, currentTime) > 0 ? "" : "opacity-50"
-              }`}
+            <ButtonProgress
               key={i.title}
-              onClick={() => {
-                videoRef.current!.currentTime = i.steps[0].start;
-                setCurrentTime(i.steps[0].start);
-                // videoRef.current!.play();
-              }}
-            >
-              {i.title}
-              <progress
-                className="w-full"
-                value={getGlobalProgress(i.steps, currentTime)}
-              />
-            </button>
+              title={i.title}
+              progress={getGlobalProgress(i.steps, currentTime)}
+              onClick={() => onClickButton(i.steps[0].start)}
+            />
           );
         })}
       </section>
@@ -122,21 +119,12 @@ function App() {
         {videoRef.current &&
           getSteps(info, currentTime).map((step) => {
             return (
-              <button
-                className="flex flex-col border-2 m-2 rounded-full p-2 whitespace-nowrap"
+              <ButtonProgress
                 key={step.title}
-                onClick={() => {
-                  videoRef.current!.currentTime = step.start;
-                  setCurrentTime(step.start);
-                  // videoRef.current!.play();
-                }}
-              >
-                {step.title}
-                <progress
-                  className="w-full"
-                  value={getLocalProgress(step.start, step.end, currentTime)}
-                />
-              </button>
+                title={step.title}
+                progress={getLocalProgress(step.start, step.end, currentTime)}
+                onClick={() => onClickButton(step.start)}
+              />
             );
           })}
       </section>
