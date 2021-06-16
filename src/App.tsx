@@ -35,6 +35,21 @@ interface IData {
   steps: Array<{ title: string; start: number; end: number }>;
 }
 
+const getGlobalProgress = (steps: IData["steps"], currentTime = 0) => {
+  return (
+    ((currentTime ?? 0) - steps[0].start) /
+    (steps[steps.length - 1].end - steps[0].start)
+  );
+};
+
+const getLocalProgress = (
+  start: number,
+  end: number,
+  currentTime: number = 0
+) => {
+  return ((currentTime ?? 0) - start) / (end - start);
+};
+
 function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [clock, setClock] = useState<NodeJS.Timeout>();
@@ -79,11 +94,13 @@ function App() {
         Your browser does not support the video tag.
       </video>
       <div className="absolute top-0 m-2">{playing ? "" : "⏸"}</div>
-      <section className="flex">
+      <section className="flex flex-wrap">
         {info.map((i) => {
           return (
             <button
-              className="flex flex-col border-2 m-2 rounded-full p-2"
+              className={`flex flex-col border-2 m-2 rounded-full p-2 ${
+                getGlobalProgress(i.steps, currentTime) > 0 ? "" : "opacity-50"
+              }`}
               key={i.title}
               onClick={() => {
                 videoRef.current!.currentTime = i.steps[0].start;
@@ -94,16 +111,14 @@ function App() {
               {i.title}
               <progress
                 className="w-full"
-                value={
-                  ((currentTime ?? 0) - i.steps[0].start) /
-                  (i.steps[i.steps.length - 1].end - i.steps[0].start)
-                }
+                value={getGlobalProgress(i.steps, currentTime)}
               />
             </button>
           );
         })}
       </section>
-      <section className="flex overflow-auto">
+      <div className="border-b"></div>
+      <section className="flex flex-wrap">
         {videoRef.current &&
           getSteps(info, currentTime).map((step) => {
             return (
@@ -119,9 +134,7 @@ function App() {
                 {step.title}
                 <progress
                   className="w-full"
-                  value={
-                    ((currentTime ?? 0) - step.start) / (step.end - step.start)
-                  }
+                  value={getLocalProgress(step.start, step.end, currentTime)}
                 />
               </button>
             );
