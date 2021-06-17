@@ -1,10 +1,12 @@
-import { Route, Switch, BrowserRouter, Link } from "react-router-dom";
+import { Route, Switch, BrowserRouter } from "react-router-dom";
 import { Main } from "./pages/Main";
 import { Editor } from "./pages/Editor";
+import { NavBar } from "./components/Navbar";
 
 function App() {
   return (
     <BrowserRouter>
+      <NavBar />
       <Switch>
         <Route path="/editor">
           <Editor />
@@ -13,10 +15,6 @@ function App() {
           <Main />
         </Route>
       </Switch>
-      <div className="flex justify-around underline pt-28">
-        <Link to="/">Home</Link>
-        <Link to="/editor">Editor</Link>
-      </div>
     </BrowserRouter>
   );
 }
