@@ -22,7 +22,7 @@ export const ButtonProgress: FC<IButtonProgress> = ({
       {progress ? (
         <div
           className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-green-200 to-blue-200"
-          style={{ width: `${progress * 100}%` }}
+          style={{ width: `${progress}%` }}
         ></div>
       ) : null}
     </button>

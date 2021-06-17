@@ -26,10 +26,14 @@ const sections: ISection[] = [
 
 const findSectionIdex = (sections: ISection[], second: number = 0) => {
   const index = sections.findIndex(
-    (i) => i.figures[i.figures.length - 1].to >= second
+    (i) => i.figures[i.figures.length - 1].to > second
   );
 
   return index === -1 ? sections.length - 1 : index;
+};
+
+const normalizeProgress = (progress: number) => {
+  return (progress > 1 ? 1 : progress < 0 ? 0 : progress) * 100;
 };
 
 const getSectionProgress = (
@@ -44,7 +48,7 @@ const getSectionProgress = (
   const endTime =
     sections[index].figures[sections[index].figures.length - 1].to;
   const progress = (currentTime - startTime) / (endTime - startTime);
-  return progress > 1 ? 1 : progress;
+  return normalizeProgress(progress);
 };
 
 const getLocalProgress = (
@@ -53,7 +57,7 @@ const getLocalProgress = (
   currentTime: number = 0
 ) => {
   const progress = (currentTime - start) / (end - start);
-  return progress > 1 ? 1 : progress;
+  return normalizeProgress(progress);
 };
 
 export const Main: FC = () => {
@@ -108,14 +112,20 @@ export const Main: FC = () => {
       </video>
       <div className="absolute top-0 m-2">{playing ? "" : "⏸"}</div>
       <section className="flex flex-wrap">
-        {sections.map((section, index) => {
+        {sections.map((section, sectionIndex) => {
           return (
             <ButtonProgress
               key={section.title}
               title={section.title}
-              progress={getSectionProgress(sections, index, currentTime)}
+              progress={getSectionProgress(sections, sectionIndex, currentTime)}
               onClick={() =>
-                onClickButton(index === 0 ? 0 : section.figures[index - 1].to)
+                onClickButton(
+                  sectionIndex === 0
+                    ? 0
+                    : sections[sectionIndex - 1].figures[
+                        sections[sectionIndex - 1].figures.length - 1
+                      ].to
+                )
               }
             />
           );
@@ -124,31 +134,31 @@ export const Main: FC = () => {
       <div className="border-b"></div>
       <section className="flex flex-wrap">
         {videoRef.current &&
-          sections[sectionIndex].figures.map((figure, index, figures) => {
+          sections[sectionIndex].figures.map((figure, figureIndex, figures) => {
             return (
               <ButtonProgress
                 key={figure.title}
                 title={figure.title}
                 progress={getLocalProgress(
-                  index === 0
+                  figureIndex === 0
                     ? sectionIndex === 0
                       ? 0
                       : sections[sectionIndex - 1].figures[
                           sections[sectionIndex - 1].figures.length - 1
                         ].to
-                    : figures[index - 1].to,
+                    : figures[figureIndex - 1].to,
                   figure.to,
                   currentTime
                 )}
                 onClick={() => {
                   onClickButton(
-                    index === 0
+                    figureIndex === 0
                       ? sectionIndex === 0
                         ? 0
                         : sections[sectionIndex - 1].figures[
                             sections[sectionIndex - 1].figures.length - 1
                           ].to
-                      : figures[index - 1].to
+                      : figures[figureIndex - 1].to
                   );
                 }}
               />
