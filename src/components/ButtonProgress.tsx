@@ -13,7 +13,7 @@ export const ButtonProgress: FC<IButtonProgress> = ({
 }) => {
   return (
     <button
-      className={`relative border border-blue-200 m-2 rounded-full p-1 whitespace-nowrap overflow-auto ${
+      className={`outline-none relative border border-purple-200 m-2 rounded-full p-1 whitespace-nowrap overflow-auto ${
         progress > 0 ? "" : "opacity-50"
       }`}
       onClick={onClick}
@@ -21,7 +21,7 @@ export const ButtonProgress: FC<IButtonProgress> = ({
       <p className="mx-2 z-10 relative">{title}</p>
       {progress ? (
         <div
-          className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-green-200 to-blue-200"
+          className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-purple-200 to-blue-200"
           style={{ width: `${progress}%` }}
         ></div>
       ) : null}
