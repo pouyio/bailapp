@@ -1,7 +1,7 @@
 import { FC } from "react";
 
 interface IButtonProgress {
-  title: string;
+  title: string | number;
   progress: number;
   onClick: () => void;
 }
@@ -19,12 +19,10 @@ export const ButtonProgress: FC<IButtonProgress> = ({
       onClick={onClick}
     >
       <p className="mx-2 z-10 relative">{title}</p>
-      {progress ? (
-        <div
-          className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-purple-200 to-blue-200"
-          style={{ width: `${progress}%` }}
-        ></div>
-      ) : null}
+      <div
+        className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-purple-200 to-blue-200"
+        style={{ width: `${progress}%` }}
+      ></div>
     </button>
   );
 };

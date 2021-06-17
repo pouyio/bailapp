@@ -9,16 +9,15 @@ const sections: ISection[] = [
       { title: "crusaito", to: 3 },
       { title: "brikindans", to: 4 },
       { title: "robocó", to: 5 },
-      { title: "maikeljason", to: 6 },
-      { title: "chiki chiki", to: 7 },
+      { to: 6 },
+      { to: 7 },
     ],
   },
   {
-    title: "la segunda",
     figures: [
-      { title: "pikachu", to: 8 },
+      { to: 8 },
       { title: "vulvasaur", to: 9 },
-      { title: "squirtle", to: 10 },
+      { to: 10 },
       { title: "charmander", to: 12 },
     ],
   },
@@ -110,61 +109,69 @@ export const Main: FC = () => {
         />
         Your browser does not support the video tag.
       </video>
-      <div className="absolute top-0 m-2">{playing ? "" : "⏸"}</div>
-      <section className="flex flex-wrap">
-        {sections.map((section, sectionIndex) => {
-          return (
-            <ButtonProgress
-              key={section.title}
-              title={section.title}
-              progress={getSectionProgress(sections, sectionIndex, currentTime)}
-              onClick={() =>
-                onClickButton(
-                  sectionIndex === 0
-                    ? 0
-                    : sections[sectionIndex - 1].figures[
-                        sections[sectionIndex - 1].figures.length - 1
-                      ].to
-                )
-              }
-            />
-          );
-        })}
-      </section>
-      <div className="border-b"></div>
-      <section className="flex flex-wrap">
-        {videoRef.current &&
-          sections[sectionIndex].figures.map((figure, figureIndex, figures) => {
+      <div className="p-2">
+        <div className="absolute top-0 m-2">{playing ? "" : "⏸"}</div>
+        <section className="flex flex-wrap">
+          {sections.map((section, sectionIndex) => {
             return (
               <ButtonProgress
-                key={figure.title}
-                title={figure.title}
-                progress={getLocalProgress(
-                  figureIndex === 0
-                    ? sectionIndex === 0
+                key={section.title ?? sectionIndex}
+                title={section.title ?? sectionIndex + 1}
+                progress={getSectionProgress(
+                  sections,
+                  sectionIndex,
+                  currentTime
+                )}
+                onClick={() =>
+                  onClickButton(
+                    sectionIndex === 0
                       ? 0
                       : sections[sectionIndex - 1].figures[
                           sections[sectionIndex - 1].figures.length - 1
                         ].to
-                    : figures[figureIndex - 1].to,
-                  figure.to,
-                  currentTime
-                )}
-                onClick={() => {
-                  onClickButton(
-                    figureIndex === 0
-                      ? sectionIndex === 0
-                        ? 0
-                        : sections[sectionIndex - 1].figures[
-                            sections[sectionIndex - 1].figures.length - 1
-                          ].to
-                      : figures[figureIndex - 1].to
-                  );
-                }}
+                  )
+                }
               />
             );
           })}
-      </section>
+        </section>
+        <div className="border-b"></div>
+        <section className="flex flex-wrap">
+          {videoRef.current &&
+            sections[sectionIndex].figures.map(
+              (figure, figureIndex, figures) => {
+                return (
+                  <ButtonProgress
+                    key={figure.title ?? figureIndex}
+                    title={figure.title ?? figureIndex + 1}
+                    progress={getLocalProgress(
+                      figureIndex === 0
+                        ? sectionIndex === 0
+                          ? 0
+                          : sections[sectionIndex - 1].figures[
+                              sections[sectionIndex - 1].figures.length - 1
+                            ].to
+                        : figures[figureIndex - 1].to,
+                      figure.to,
+                      currentTime
+                    )}
+                    onClick={() => {
+                      onClickButton(
+                        figureIndex === 0
+                          ? sectionIndex === 0
+                            ? 0
+                            : sections[sectionIndex - 1].figures[
+                                sections[sectionIndex - 1].figures.length - 1
+                              ].to
+                          : figures[figureIndex - 1].to
+                      );
+                    }}
+                  />
+                );
+              }
+            )}
+        </section>
+      </div>
     </div>
   );
 };

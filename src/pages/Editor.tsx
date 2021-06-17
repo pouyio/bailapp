@@ -7,10 +7,27 @@ export const Editor: FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const addStep = () => {
-    setSteps((s) => [0, ...s]);
+    if (!videoRef.current) {
+      return;
+    }
+    const lastTime = steps[steps.length - 1] ?? 0;
+    const nextHandleTime =
+      (videoRef.current!.duration - lastTime) / 2 + lastTime;
+    setSteps((s) => [...s, nextHandleTime]);
   };
 
-  const info = steps;
+  const onMoveSteps = (newSteps: number[]) => {
+    if (!videoRef.current) {
+      return;
+    }
+    const stepMoved = steps.find((step, index) => step !== newSteps[index]);
+    setSteps(newSteps);
+    videoRef.current.currentTime = stepMoved ?? 0;
+  };
+
+  const info = steps.map((to) => ({
+    to,
+  }));
 
   return (
     <>
@@ -21,20 +38,22 @@ export const Editor: FC = () => {
         />
         Your browser does not support the video tag.
       </video>
-      <button
-        className="p-1 border border-blue-200 m-2 rounded-full"
-        onClick={addStep}
-      >
-        add
-      </button>
-      <Range
-        allowCross={false}
-        value={steps}
-        onChange={setSteps}
-        min={0}
-        max={videoRef.current?.duration}
-      />
-      <pre className="text-xs">{JSON.stringify(info, null, 2)}</pre>
+      <div className="p-2">
+        <button
+          className="m-2 p-1 border border-blue-200 m-2 rounded-full"
+          onClick={addStep}
+        >
+          <span className="mx-2">add</span>
+        </button>
+        <Range
+          allowCross={false}
+          value={steps}
+          onChange={onMoveSteps}
+          min={0}
+          max={videoRef.current?.duration}
+        />
+        <pre className="text-xs">{JSON.stringify(info, null, 2)}</pre>
+      </div>
     </>
   );
 };

@@ -1,4 +1,4 @@
 export interface ISection {
-  title: string;
-  figures: Array<{ title: string; to: number }>;
+  title?: string;
+  figures: Array<{ title?: string; to: number }>;
 }
