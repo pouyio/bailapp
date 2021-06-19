@@ -1,10 +1,15 @@
 import { FC, useRef, useState } from "react";
 import { Range } from "rc-slider";
+import { useFilePicker } from "use-file-picker";
 import "rc-slider/assets/index.css";
 
 export const Editor: FC = () => {
   const [steps, setSteps] = useState<Array<number>>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [openFileSelector, { plainFiles, clear }] = useFilePicker({
+    accept: "video/*",
+    readFilesContent: true,
+  });
 
   const addStep = () => {
     if (!videoRef.current) {
@@ -31,28 +36,57 @@ export const Editor: FC = () => {
 
   return (
     <>
-      <video controls={true} ref={videoRef} playsInline>
-        <source
-          src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-          type="video/mp4"
-        />
-        Your browser does not support the video tag.
-      </video>
-      <div className="p-2">
-        <button
-          className="m-2 p-1 border border-blue-200 m-2 rounded-full"
-          onClick={addStep}
-        >
-          <span className="mx-2">add</span>
+      {plainFiles.length ? (
+        <video controls={true} ref={videoRef} playsInline>
+          <source
+            src={URL.createObjectURL(plainFiles[0])}
+            type={plainFiles[0].type}
+          />
+          Your browser does not support the video tag.
+        </video>
+      ) : (
+        <button className="w-full">
+          <img
+            className="w-full"
+            onClick={openFileSelector}
+            src="https://via.placeholder.com/375x210?text=Click+to+upload+video"
+            alt="video placeholder"
+          />
         </button>
-        <Range
-          allowCross={false}
-          value={steps}
-          onChange={onMoveSteps}
-          min={0}
-          max={videoRef.current?.duration}
-        />
-        <pre className="text-xs">{JSON.stringify(info, null, 2)}</pre>
+      )}
+      <div className="p-2">
+        {plainFiles.length ? (
+          <>
+            <button
+              className="m-2 p-1 border border-blue-200 m-2 rounded-full"
+              onClick={() => {
+                clear();
+                openFileSelector();
+              }}
+            >
+              <span className="m-2">Upload new video</span>
+            </button>
+            <br />
+          </>
+        ) : null}
+        {plainFiles.length ? (
+          <>
+            <button
+              className="m-2 p-1 border border-blue-200 m-2 rounded-full"
+              onClick={addStep}
+            >
+              <span className="mx-2">add</span>
+            </button>
+            <Range
+              allowCross={false}
+              value={steps}
+              onChange={onMoveSteps}
+              min={0}
+              max={videoRef.current?.duration}
+            />
+            <pre className="text-xs">{JSON.stringify(info, null, 2)}</pre>
+          </>
+        ) : null}
       </div>
     </>
   );
