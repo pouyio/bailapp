@@ -136,7 +136,6 @@ export const Editor: FC = () => {
               />
             );
           })}
-          <pre className="text-xs">{JSON.stringify(steps, null, 2)}</pre>
         </div>
       </div>
     </>
