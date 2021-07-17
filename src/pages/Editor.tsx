@@ -4,7 +4,7 @@ import "rc-slider/assets/index.css";
 import { useFile } from "../hooks/useFile";
 
 export const Editor: FC = () => {
-  const [steps, setSteps] = useState<Array<number>>([]);
+  const [steps, setSteps] = useState<Array<{ to: number; title?: string }>>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { file, onChangeFile } = useFile();
@@ -13,19 +13,27 @@ export const Editor: FC = () => {
     if (!videoRef.current) {
       return;
     }
-    const lastTime = steps[steps.length - 1] ?? 0;
+    const lastTime = steps[steps.length - 1]?.to ?? 0;
     const nextHandleTime =
       (videoRef.current!.duration - lastTime) / 2 + lastTime;
-    setSteps((s) => [...s, nextHandleTime]);
+    setSteps((s) => [...s, { to: nextHandleTime }]);
   };
 
-  const onMoveSteps = (newSteps: number[]) => {
+  const onMoveSteps = (newTos: number[]) => {
     if (!videoRef.current) {
       return;
     }
-    const stepMoved = steps.find((step, index) => step !== newSteps[index]);
-    setSteps(newSteps);
-    videoRef.current.currentTime = stepMoved ?? 0;
+    const newStepIndex = steps.findIndex(
+      (step, index) => step.to !== newTos[index]
+    );
+    setSteps((oldSteps) => {
+      return oldSteps.map((oldStep, index) => {
+        return index === newStepIndex
+          ? { ...oldStep, to: newTos[newStepIndex] }
+          : oldStep;
+      });
+    });
+    videoRef.current.currentTime = newTos[newStepIndex] ?? 0;
   };
 
   const onClickUpload = () => {
@@ -35,6 +43,16 @@ export const Editor: FC = () => {
       // for chrome
       inputRef.current.click();
     }
+  };
+
+  const calculateWidth = (index: number) => {
+    if (index === 0) {
+      return (steps[0].to / videoRef.current!.duration) * 100;
+    }
+    return (
+      ((steps[index].to - steps[index - 1].to) / videoRef.current!.duration) *
+      100
+    );
   };
 
   return (
@@ -88,14 +106,38 @@ export const Editor: FC = () => {
             </button>
             <Range
               allowCross={false}
-              value={steps}
+              value={steps.map((s) => s.to)}
               onChange={onMoveSteps}
               min={0}
               max={videoRef.current?.duration}
             />
-            <pre className="text-xs">{JSON.stringify(steps, null, 2)}</pre>
           </>
         ) : null}
+        <div className="d-flex no-wrap">
+          {steps.map((step, index) => {
+            return (
+              <input
+                key={step.to}
+                type="text"
+                className="border"
+                defaultValue={step.title}
+                onChange={(e) => {
+                  setSteps((oldSteps) => {
+                    return oldSteps.map((oldStep, oldIndex) => {
+                      return oldIndex === index
+                        ? { ...oldStep, title: e.target.value }
+                        : oldStep;
+                    });
+                  });
+                }}
+                style={{
+                  width: calculateWidth(index) + "%",
+                }}
+              />
+            );
+          })}
+          <pre className="text-xs">{JSON.stringify(steps, null, 2)}</pre>
+        </div>
       </div>
     </>
   );
